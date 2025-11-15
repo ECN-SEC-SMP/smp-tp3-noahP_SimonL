@@ -16,3 +16,5 @@ typedef struct{ //élèment structurant
 //prototypes :
 void differencePgm(t_Image * imgMod, t_Image *  img1, t_Image *  img2);
 void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond);
+void fill_M(t_structurant * Struct);
+

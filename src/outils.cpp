@@ -3,7 +3,8 @@
 #include <cmath>
 #include <iostream>
 
-
+const short NOIR = 0;
+const short BLANC = 255;
 
 /**
  * @brief Calcule la valeur absolue de la différence entre deux images.
@@ -16,10 +17,10 @@
  * @pre Les images img1 et img2 doivent avoir les mêmes dimensions (w et h).
  */
 void differencePgm(t_Image * imgMod, t_Image *  img1, t_Image *  img2){
-    //Vérifie  que mes img ne sont pas null
+    //Vérifie  que les img ne sont pas null
     assert(img1 != nullptr && img2 != nullptr && imgMod != nullptr);
     //Vérifie que les images font la même tailles
-    assert(img1->h == img2->h && img1->w == img2->w);
+    assert(img1->h == img2->h && img1->w == img2->w && imgMod->h == img1->h && imgMod->w == img1->w);
 
     //Parcours tous les pixels de l'image
     for (unsigned short y = 0; y < img1->h; y++){
@@ -30,6 +31,50 @@ void differencePgm(t_Image * imgMod, t_Image *  img1, t_Image *  img2){
         }
     }
 }
+
+void seuil(t_Image * Image,unsigned int sueil){
+    assert(Image != nullptr);
+    
+    for (int i = 0; i < (*Image).h;i++){
+        for(int j = 0; j<(*Image).w;j++){
+            if(Image->im[i][j] < sueil){
+                Image->im[i][j] = NOIR;
+            }else{
+                Image->im[i][j] = BLANC;
+            }
+        }
+    }   
+}
+
+
+void dilatation(t_Image * Image, t_Image * Image_D, t_structurant * Struct){
+    assert(Image != nullptr);
+    
+    
+    for (int i = 0; i < (*Image).h;i++){
+        for(int j = 0; j<(*Image).w;j++){
+            if(Image->im[i][j] == 255){
+
+                Image_D->im[i-1][j-1] = Struct->em[0][0];
+                Image_D->im[i-1][j]   = Struct->em[0][1];
+                Image_D->im[i-1][j+1] = Struct->em[0][2];
+
+                Image_D->im[i][j-1]   = Struct->em[1][0];
+                Image_D->im[i][j]     = Struct->em[1][1];
+                Image_D->im[i][j+1]   = Struct->em[1][2];
+
+                Image_D->im[i+1][j-1] = Struct->em[2][0];
+                Image_D->im[i+1][j]   = Struct->em[2][1];
+                Image_D->im[i+1][j+1] = Struct->em[2][2];
+
+            }
+
+
+        }
+    }
+
+}
+
 
 /**
  * @brief Effectue l'opération d'érosion morphologique sur une image binaire.
@@ -64,7 +109,7 @@ void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, 
                         short wMatrice = x + (wM - centre_offset);
 
                         //Vérification des bords et de la correspondance des pixels
-                        if (hMatrice < 0 || wMatrice < 0 || hMatrice >=  img->h || wMatrice >= img->w || img->im[hMatrice][wMatrice] != (couleurFond ? 0 : 255))
+                        if (hMatrice < 0 || wMatrice < 0 || hMatrice >=  img->h || wMatrice >= img->w || img->im[hMatrice][wMatrice] != (couleurFond ? NOIR : BLANC))
                         {
                             fits = false;
                             break;
@@ -75,10 +120,20 @@ void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, 
 
             //Gestion en fonction de la couleur de fond
             if (couleurFond){
-                imgMod->im[y][x] = fits ? 0 : 255;
+                imgMod->im[y][x] = fits ? NOIR : BLANC;
             } else{
-                imgMod->im[y][x] = fits ? 255 : 0;
+                imgMod->im[y][x] = fits ? BLANC : NOIR;
             }
+        }
+    }
+}
+
+
+
+void fill_M(t_structurant * Struct, int size){
+    for (int i = 0; i < size; i++){
+        for(int j = 0; j<size;j++){
+            Struct->em[i][j] = 1;
         }
     }
 }
