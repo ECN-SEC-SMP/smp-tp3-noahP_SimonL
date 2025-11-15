@@ -21,76 +21,61 @@ make
 make clean
 ```
 
-## Préambule : Représentation des Grands Entiers
+## Préambule : Représentation des images .PGM
 
 ### Choix de représentation :
 
-Pour représenter des nombres dépassant les limites des types primitifs, nous utilisons la structure `t_EntierLong` :
+Pour représenter une image, nous utilisons la structure `t_Image`, qui s'appuie sur une taille maximale fixe et une matrice pour stocker les pixels
 
 ```cpp
-const int MAXCHIFFRES = 18;
+const int TMAX = 800; // taille maximale des images
 
-struct t_EntierLong {
-    bool negatif;               // true si le nombre est négatif
-    int chiffres[MAXCHIFFRES];  // Chiffres stockés de droite à gauche
+// Matrice d'entier pour representer les niveaux de gris des pixels de l'image 
+typedef unsigned int t_MatEnt[TMAX][TMAX]; 
+
+// On définit la structure de données pour représenter une image
+struct t_Image
+{
+    int w; // largeur de l'image
+    int h; // hauteur de l'image
+    t_MatEnt im; // tableau des niveaux de gris de l'image
 };
 ```
 
 
 **Justification du choix :**
-- **Capacité** : Variaibles grâce à la variables ```cpp const int MAXCHIFFRES = 18;``` (limite pratique pour éviter les débordements)
-- **Stockage** : Les chiffres sont stockés dans l'ordre inverse (unités à l'index 0)
-- **Signe** : Booléen `negatif` pour indiquer le signe
-- **Format** : Chaque élément du tableau contient un seul chiffre (0-9)
+- **Capacité Maximale** : Une constante TMAX = 800 définit les dimensions maximales (800x800 pixels). <br> Ce choix simplifie la gestion de la mémoire.
+- **Dimensions Réelles** : Les champs w (largeur) et h (hauteur) stockent les dimensions de l'image chargée. 
+- **Stockage des Pixels** : La matrice im (de type t_MatEnt) est un tableau 2D qui stocke la valeur (niveau de gris) de chaque pixel.
+- **Type de Données** : Le type unsigned int est utilisé pour les niveaux de gris. Il permet de stocker les valeurs PGM standards (typiquement comprises entre 0 et 255) tout en offrant une plage supérieure si nécessaire.
 
 ### Exemple de représentation :
 
-Le nombre `123456` est représenté comme :
-```cpp
-t_EntierLong n;
-n.negatif = false;
-n.chiffres = {6, 5, 4, 3, 2, 1, 0, 0, ..., 0};
-//            ^unités      ^dizaines de milliers
-```
-## Présentation de la démarche Unity 
+Une petite image PGM de 2 pixels de large (w=2) et 2 pixels de haut (h=2):
 
-### Stratégie de test effectué
-
-- **Tests de cas normaux** : Validation du comportement attendu
-- **Tests de cas limites** : Valeurs particulières (0, nombres maximaux)
-- **Tests d'erreur** : Vérification des conditions d'échec
-
-### Fonctions Unity utilisées
-
-```cpp
-TEST_ASSERT_EQUAL_INT_ARRAY(expected, actual, MAXCHIFFRES);  // Comparaison tableaux
-TEST_ASSERT_EQUAL(expected, actual);                         // Comparaison valeurs
-TEST_ASSERT_TRUE(condition);                                 // Test booléen
-TEST_ASSERT_FALSE(condition);                                // Test booléen inverse
+```pgm
+# Fichier : imgBsc.pgm (format P2 - ASCII)
+P2
+2 2
+255
+255 100
+50 0
 ```
 
-#### Fonctions nécessaires aux tests
-```cpp
-void setUp(void) {
-    exit_called = 0;
-    cerr.rdbuf(nullptr); // Désactive les sorties d'erreur pendant les tests
-}
+En mémoire (structure t_Image) :
 
-void tearDown(void) {
-    // Nettoyage après chaque test
-}
+```cpp
+t_Image imgBsc;
+imgBsc.w = 2;
+imgBsc.h = 2;
+imgBsc.im[0][0] = 255;   // pixel (x=0,y=0)
+imgBsc.im[1][0] = 100; // pixel (x=1,y=0)
+imgBsc.im[0][1] = 50; // pixel (x=0,y=1)
+imgBsc.im[1][1] = 0;  // pixel (x=1,y=1)
 ```
 
-### Avantages de Unity pour ce projet
+serait représentée en mémoire comme suit :
 
-1. **Simplicité d'utilisation** : Syntaxe claire et intuitive
-2. **Portabilité** : Compatible avec tous les environnements C/C++
-3. **Granularité** : Tests unitaires isolés et reproductibles
-4. **Fonctions spécialisées** : `TEST_ASSERT_EQUAL_INT_ARRAY` parfait pour nos tableaux
-5. **Gestion d'erreurs** : Capture possible des `exit()` avec `setjmp/longjmp`
-6. **Étendue des tests** : Grand nombre de cas différents vérifiers et testés
-
-Cette approche avec Unity augmente la fiabilité et la robustesse de toutes les fonctionss implémentées.
 
 
 ## Q1) Fonctions seuillage et différence :

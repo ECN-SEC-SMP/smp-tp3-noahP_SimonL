@@ -137,3 +137,21 @@ void fill_M(t_structurant * Struct, int size){
         }
     }
 }
+
+
+
+void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
+    
+    erosionPgm(imgMod, img, elStructurant, couleurFond);
+    dilatation(imgMod, img, elStructurant);
+}
+
+
+void ouverturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
+    
+    dilatation(imgMod, img, elStructurant);
+    erosionPgm(imgMod, img, elStructurant, couleurFond);
+    
+}
+
+
