@@ -110,16 +110,17 @@ imgBsc.im[1][1] = 0;  // pixel (x=1,y=1)
 
 ## Q1) Fonctions seuillage et différence :
 
-### Fonction  de seuillage `nom`
+### Fonction  de seuillage `nom`  (Simon)
 
 #### Algorithmes
 
 
-<img src="./assets/UML_seuil.png" alt="Diagramme UML de differencePgm" width="300" />
+<img src="./assets/UML_Seuil.png" alt="Diagramme UML de differencePgm" width="350" />
 
 
 #### Description du principe :
-ce que fait le seuillage ...
+L'algorithme compare la valeur de chaque pixel de l'image d'entrée à un seuil donné.Si la valeur du pixel est supérieure ou égale au seuil, le pixel de sortie prend la valeur maximale (içi BLANC). Sinon, le pixel de sortie prend la valeur minimale (içi NOIR).
+Cette opération permet de convertir une image en niveaux de gris en une image binaire.
 
 
 #### Prototypes
@@ -131,10 +132,24 @@ void seuil(t_Image * Image,unsigned int sueil);
 
 ```cpp
 void test_seuil(){
-    //mettre le code du test ici
+    //Allocation dynamique de l'image
+    t_Image* ptr_img1 = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+
+    //Chargement de l'image :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+
+    //Binarisation de l'image avec un seuil de 125
+    seuil(ptr_img1,125);
+
+    //Sauvegarde de l'image modifiée :
+    savePgm(pathMod+"lenaSeuil125"+size1+endFile,ptr_img1);
+
+    //Libération de la mémoire :
+    delete ptr_img1;
 }
 ```
-![test_seuil](assets/seuil.png)
+![test_seuil](assets/lenaseuil.png)
 
 ---
 ### Fonction  de différence `differencePgm()`
@@ -204,7 +219,7 @@ typedef struct{ //élèment structurant
 ## Q3) Fonctions dilatation et érosion :
 
 
-### Fonction  `erosionPgm()`
+### Fonction  `erosionPgm()` (Noah)
 
 #### Algorithmes
 
@@ -229,16 +244,9 @@ void test_erosion(){
     t_Image* ptr_imgMod = new t_Image;
     //Allocation dynamique de l'élément structurant :
     t_structurant* ptr_elementStructurant = new t_structurant;
+    fill_ES(ptr_elementStructurant,3,1);
 
     bool success = false; //Indicateur de succès du chargement
-
-    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
-    ptr_elementStructurant->size = 3;
-    for (unsigned int i = 0; i < 3; i++){
-        for (unsigned int j = 0; j < 3; j++){
-            ptr_elementStructurant->em[i][j] = 1;
-        }
-    }
 
     //Image 1 avec fond blanc
     //Chargement des images :
@@ -258,33 +266,48 @@ void test_erosion(){
     delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
 }
 ```
-![test_seuil](assets/erosion.png)
+![test_erosion](assets/test_erosion.png)
 
 ---
 
 
-### Fonction  `dilatation()`
+### Fonction  `dilatation()` (Simon)
 
 #### Algorithmes
 
-<img src="./assets/UML_erosion.png" alt="Diagramme UML de dilatation" width="300" />
+<img src="./assets/UML_dilatation.png" alt="Diagramme UML de dilatation" width="350" />
 
 
 #### Description du principe :
-ce que fait le dilatation ...
+La dilatation est une opération fondamentale de traitement d’image binaire utilisée pour agrandir les objets blancs (ou noirs) et combler les petits trous dans une image. Elle s’appuie sur un élément structurant `t_structurant` qui définit la forme et la taille de l’expansion.
 
 
 #### Prototypes
 ```cpp
-void dilatation(t_Image * Image,unsigned int sueil);
+void dilatation(t_Image * Image, t_Image * Image_D, short COULEUR);
 ```
 
 #### Jeux d'essais 
 
 ```cpp
 void test_dilatation(){
-    //Ce que fait le test ici
-}
+    ///Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod_2 = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+
+    //Chargement des images :
+    loadPgm(pathBasic+"visageBinaireOriginal"+size2+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size2+endFile,ptr_imgMod_2,success);
+
+    dilatation(ptr_img1,ptr_imgMod_2,NOIR);
+
+    savePgm(pathMod+"visageBinaireDilatation"+size2+endFile,ptr_imgMod_2);
+    //Libération de la mémoire :
+    delete ptr_img1;
+
+    delete ptr_imgMod_2;
+}//...
 ```
 ![test_seuil](assets/dilatation.png)
 
@@ -296,7 +319,7 @@ void test_dilatation(){
 ## Q4) Fonctions d'ouverture et de fermeture :
 
 
-### Fonction  `ouverturePgm()`
+### Fonction  `ouverturePgm()` (Simon)
 
 #### Algorithmes
 
@@ -315,16 +338,36 @@ void ouverturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant
 #### Jeux d'essais 
 
 ```cpp
-void test_erosion(){
-    //mettre le code du test ici
+void test_ouverture(){
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+    //Allocation dynamique de l'élément structurant :
+    t_structurant* ptr_elementStructurant = new t_structurant;
+    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
+    fill_ES(ptr_elementStructurant,3,1);
+
+    //Chargement des images :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size1+endFile,ptr_imgMod,success);
+
+
+    seuil(ptr_img1,125);
+
+    ouverturePgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
+
+    savePgm(pathMod+"lenaOuverture"+size1+endFile,ptr_imgMod);
+
+    delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
 }
 ```
-![test_seuil](assets/erosion.png)
+![test_seuil](assets/ouverture.png)
 
 ---
 
 
-### Fonction  `fermeturePgm()`
+### Fonction  `fermeturePgm()` (Noah)
 
 #### Algorithmes
 
@@ -344,10 +387,30 @@ void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant
 
 ```cpp
 void test_fermeture(){
-    //Ce que fait le test ici
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+    //Allocation dynamique de l'élément structurant :
+    t_structurant* ptr_elementStructurant = new t_structurant;
+    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
+    fill_ES(ptr_elementStructurant,3,1);
+
+    //Chargement des images :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size1+endFile,ptr_imgMod,success);
+
+    seuil(ptr_img1,125);
+
+
+    fermeturePgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
+
+    savePgm(pathMod+"lenaFermeture"+size1+endFile,ptr_imgMod);
+
+    delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
 }
 ```
-![test_seuil](assets/dilatation.png)
+![test_seuil](assets/fermeture.png)
 
 ---
 

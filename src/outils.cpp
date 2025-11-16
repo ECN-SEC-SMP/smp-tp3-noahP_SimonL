@@ -129,8 +129,6 @@ void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, 
 void dilatation(t_Image * Image, t_Image * Image_D, short COULEUR){
     assert(Image != nullptr);
     assert(Image->h == Image_D->h && Image->w == Image_D->w);
-
-    
     
     for (int i = 1; i < (*Image).h ;i++){
         for(int j = 0; j<(*Image).w ;j++){
@@ -149,28 +147,80 @@ void dilatation(t_Image * Image, t_Image * Image_D, short COULEUR){
                 Image_D->im[i+1][j+1] = COULEUR;
 
             }
-
-
         }
     }
-
-}
 }
 
 
 
-void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
-    
-    erosionPgm(imgMod, img, elStructurant, couleurFond);
-    dilatation(imgMod, img, elStructurant);
-}
-
-
+/**
+ * @brief Réalise l'ouverture d'une image par un élément structurant (erosion -> dilatation).
+ * 
+ * @param imgMod Pointeur vers l'image résultante (modifiée après ouverture).
+ * @param img Pointeur vers l'image d'origine.
+ * @param elStructurant Pointeur vers l'élément structurant utilisé pour l'érosion/dilatation.
+ * @param couleurFond Couleur du fond : true pour noir, false pour blanc.
+ */
 void ouverturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
-    
-    dilatation(imgMod, img, elStructurant);
-    erosionPgm(imgMod, img, elStructurant, couleurFond);
-    
+    short COULEUR = couleurFond ? NOIR:BLANC;
+    t_Image*  imgTemp = new t_Image;
+    fill_IMAGE(imgTemp, img->w, img->h, couleurFond ? BLANC : NOIR);
+    erosionPgm(imgTemp, img, elStructurant, couleurFond);
+    dilatation(imgTemp,imgMod, COULEUR);
+    delete imgTemp;
 }
 
+
+/**
+ * @brief Réalise la fermeture d'une image par un élément structurant (dilatation -> erosion).
+ * 
+ * @param imgMod Pointeur vers l'image résultante (modifiée après fermeture).
+ * @param img Pointeur vers l'image d'origine.
+ * @param elStructurant Pointeur vers l'élément structurant utilisé pour la dilatation/érosion.
+ * @param couleurFond Couleur du fond : true pour noir, false pour blanc.
+ */
+void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
+    short COULEUR = couleurFond ? NOIR:BLANC;
+    t_Image*  imgTemp = new t_Image;
+    fill_IMAGE(imgTemp, img->w, img->h, couleurFond ? BLANC : NOIR);
+    dilatation(img, imgTemp, COULEUR);
+    erosionPgm(imgMod, imgTemp, elStructurant, couleurFond);
+    delete imgTemp;
+}
+
+/**
+ * @brief Remplit une image avec une valeur uniforme.
+ * 
+ * @param img Pointeur vers l'image à remplir.
+ * @param width Largeur de l'image.
+ * @param height Hauteur de l'image.
+ * @param value Valeur à appliquer pour chaque pixel.
+ */
+void fill_IMAGE(t_Image * img, int width, int height, short value){
+    img->w = width;
+    img->h = height;
+    for (int i = 0; i < height; i++){
+        for (int j = 0; j < width; j++){
+            img->im[i][j] = value;
+        }
+    }
+}
+
+/**
+ * @brief Remplit un élément structurant avec une valeur uniforme.
+ * 
+ * L'élément structurant est supposé carré (width == height).
+ * 
+ * @param es Pointeur vers l'élément structurant.
+ * @param size Taille de l'élément structurant.
+ * @param value Valeur booléenne à appliquer pour chaque cellule.
+ */
+void fill_ES(t_structurant* es, uint16_t size, bool value){
+    es->size = size; // On suppose que width == height
+    for (int i = 0; i < size; i++){
+        for (int j = 0; j < size; j++){
+            es->em[i][j] = value;
+        }
+    }
+}
 

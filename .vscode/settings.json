@@ -39,6 +39,7 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "algorithm": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "random": "cpp"
     }
 }

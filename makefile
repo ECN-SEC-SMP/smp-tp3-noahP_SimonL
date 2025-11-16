@@ -30,7 +30,7 @@ $(EXEC_PROGRAM2): ./build/main.o ./build/outils.o ./build/chargesauve.o
 clean:
 	rm -f build/*.o
 	rm -f ./assets/pgmMod/*
-	rm -f $(EXEC_PROGRAM1) $(EXEC_PROGRAM3)
+	rm -f $(EXEC_PROGRAM1) $(EXEC_PROGRAM2)
 
 .PHONY: all cleanZ
 

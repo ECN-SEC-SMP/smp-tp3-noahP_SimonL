@@ -16,17 +16,43 @@ const string endFile = ".pgm";
 #define BLANC 255
 
 //Prototypes privées:
+void test_seuil();
 void test_difference();
 void test_erosion();
 void test_dilatation();
+void test_dilatation2();
+void test_ouverture();
+void test_fermeture();
 
 
 int main(void) {
-    //test_difference();
-    //test_erosion();
+    test_seuil();
+    test_difference();
+    test_erosion();
     test_dilatation();
+    test_dilatation2();
+    test_fermeture();
+    test_ouverture();
+}
 
 
+void test_seuil(){
+
+    //Allocation dynamique de l'image
+    t_Image* ptr_img1 = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+
+    //Chargement de l'image :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+
+    //Binarisation de l'image avec un seuil de 125
+    seuil(ptr_img1,125);
+
+    //Sauvegarde de l'image modifiée :
+    savePgm(pathMod+"lenaSeuil125"+size1+endFile,ptr_img1);
+
+    //Libération de la mémoire :
+    delete ptr_img1;
 }
 
 void test_difference(){
@@ -62,32 +88,27 @@ void test_erosion(){
     bool success = false; //Indicateur de succès du chargement
     //Allocation dynamique de l'élément structurant :
     t_structurant* ptr_elementStructurant = new t_structurant;
-
     //Initialisation de l'élément structurant (matrice 3x3 pleine) :
-    ptr_elementStructurant->size = 3;
-    for (unsigned int i = 0; i < 3; i++){
-        for (unsigned int j = 0; j < 3; j++){
-            ptr_elementStructurant->em[i][j] = 255;
-        }
-    }
+    fill_ES(ptr_elementStructurant,3,1);
 
     //Image 1 avec fond blanc
     //Chargement des images :
-    loadPgm(pathBasic+"visageBinaire2"+size1+endFile,ptr_img1,success);
-    loadPgm(pathBasic+"noir"+size1+endFile,ptr_imgMod,success);
-
-
+    loadPgm(pathBasic+"visageBinaireOriginal"+size2+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size2+endFile,ptr_imgMod,success);
 
     //Erosion :
     erosionPgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
 
-    
     //Sauvegarde de l'image modifiée :
-    savePgm(pathMod+"visageSeuil"+size2+endFile,ptr_img1);
-    savePgm(pathMod+"visageDilatation"+size2+endFile,ptr_img1);
+    savePgm(pathMod+"visageErosion"+size2+endFile,ptr_imgMod);
 
     //Image 2 avec fond noir
-    
+    loadPgm(pathBasic+"visageBinaireOriginalN"+size2+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"noir"+size2+endFile,ptr_imgMod,success);
+
+    erosionPgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_NOIR);
+
+    savePgm(pathMod+"visageErosionN"+size2+endFile,ptr_imgMod);
 
     //Libération de la mémoire :
     delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
@@ -118,12 +139,85 @@ void test_dilatation(){
 
     savePgm(pathMod+"peppers_Dilatation"+size1+endFile,ptr_imgMod_1);
     savePgm(pathMod+"plane_Dilatation"+size1+endFile,ptr_imgMod_2);
+
     //Libération de la mémoire :
     delete ptr_img1;
     delete ptr_img2;
 
     delete ptr_imgMod_1;
-    delete ptr_imgMod_1;
+    delete ptr_imgMod_2;
+}
 
 
+void test_dilatation2(){
+
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod_2 = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+
+    //Chargement des images :
+    loadPgm(pathBasic+"visageBinaireOriginal"+size2+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size2+endFile,ptr_imgMod_2,success);
+
+    dilatation(ptr_img1,ptr_imgMod_2,NOIR);
+
+    savePgm(pathMod+"visageBinaireDilatation"+size2+endFile,ptr_imgMod_2);
+    //Libération de la mémoire :
+    delete ptr_img1;
+
+    delete ptr_imgMod_2;
+}
+
+
+
+
+void test_fermeture(){
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+    //Allocation dynamique de l'élément structurant :
+    t_structurant* ptr_elementStructurant = new t_structurant;
+    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
+    fill_ES(ptr_elementStructurant,3,1);
+
+    //Chargement des images :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size1+endFile,ptr_imgMod,success);
+
+    seuil(ptr_img1,125);
+
+
+    fermeturePgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
+
+    savePgm(pathMod+"lenaFermeture"+size1+endFile,ptr_imgMod);
+
+    delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
+}
+
+
+void test_ouverture(){
+
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
+    //Allocation dynamique de l'élément structurant :
+    t_structurant* ptr_elementStructurant = new t_structurant;
+    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
+    fill_ES(ptr_elementStructurant,3,1);
+
+    //Chargement des images :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size1+endFile,ptr_imgMod,success);
+
+
+    seuil(ptr_img1,125);
+
+    ouverturePgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
+
+    savePgm(pathMod+"lenaOuverture"+size1+endFile,ptr_imgMod);
+
+    delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
 }
