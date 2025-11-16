@@ -155,3 +155,22 @@ void dilatation(t_Image * Image, t_Image * Image_D, short COULEUR){
     }
 
 }
+}
+
+
+
+void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
+    
+    erosionPgm(imgMod, img, elStructurant, couleurFond);
+    dilatation(imgMod, img, elStructurant);
+}
+
+
+void ouverturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond){
+    
+    dilatation(imgMod, img, elStructurant);
+    erosionPgm(imgMod, img, elStructurant, couleurFond);
+    
+}
+
+
