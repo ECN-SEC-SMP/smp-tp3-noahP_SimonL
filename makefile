@@ -29,7 +29,7 @@ $(EXEC_PROGRAM2): ./build/main.o ./build/outils.o ./build/chargesauve.o
 # Supprime les fichiers objets et l'exécutable
 clean:
 	rm -f build/*.o
-	rm -f ./assets/pgmMod/*
+#	rm -f ./assets/pgmMod/*
 	rm -f $(EXEC_PROGRAM1) $(EXEC_PROGRAM2)
 
 .PHONY: all cleanZ
