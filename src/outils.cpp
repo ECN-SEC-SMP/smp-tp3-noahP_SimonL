@@ -32,12 +32,25 @@ void differencePgm(t_Image * imgMod, t_Image *  img1, t_Image *  img2){
     }
 }
 
-void seuil(t_Image * Image,unsigned int sueil){
+/**
+ * @brief Binarisation de l'image en noir et blanc
+ * 
+ * @param Image Pointeur vers l'image à binariser 
+ * @param sueil valeur comprise 0 et 255 qui met le seuil pour choisir et entre passer le gis en blanc ou noir.
+ *              gris < seuil = noir,
+ *              gris > seuil = blanc
+ * 
+ * @pre Les trois pointeurs sont non nuls.
+ * @pre 0 =< seuil <= 255
+ * 
+ */
+void seuil(t_Image * Image,unsigned int seuil){
     assert(Image != nullptr);
+    assert(seuil>=0 && seuil<=255);
     
     for (int i = 0; i < (*Image).h;i++){
         for(int j = 0; j<(*Image).w;j++){
-            if(Image->im[i][j] < sueil){
+            if(Image->im[i][j] < seuil){
                 Image->im[i][j] = NOIR;
             }else{
                 Image->im[i][j] = BLANC;
@@ -46,34 +59,6 @@ void seuil(t_Image * Image,unsigned int sueil){
     }   
 }
 
-
-void dilatation(t_Image * Image, t_Image * Image_D, t_structurant * Struct){
-    assert(Image != nullptr);
-    
-    
-    for (int i = 0; i < (*Image).h;i++){
-        for(int j = 0; j<(*Image).w;j++){
-            if(Image->im[i][j] == 255){
-
-                Image_D->im[i-1][j-1] = Struct->em[0][0];
-                Image_D->im[i-1][j]   = Struct->em[0][1];
-                Image_D->im[i-1][j+1] = Struct->em[0][2];
-
-                Image_D->im[i][j-1]   = Struct->em[1][0];
-                Image_D->im[i][j]     = Struct->em[1][1];
-                Image_D->im[i][j+1]   = Struct->em[1][2];
-
-                Image_D->im[i+1][j-1] = Struct->em[2][0];
-                Image_D->im[i+1][j]   = Struct->em[2][1];
-                Image_D->im[i+1][j+1] = Struct->em[2][2];
-
-            }
-
-
-        }
-    }
-
-}
 
 
 /**
@@ -130,10 +115,43 @@ void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, 
 
 
 
-void fill_M(t_structurant * Struct, int size){
-    for (int i = 0; i < size; i++){
-        for(int j = 0; j<size;j++){
-            Struct->em[i][j] = 1;
+
+/**
+ * @brief Effectue l'opération de dilatation morphologique sur une image binaire.
+ * 
+ * @param Image Image sur la quelle effectuer l'operation
+ * @param Image_D Image à renvoyer avec l'opération effectuer
+ * @param COULEUR Couleur avec la quelle travailler, Blanc ou Noir.
+ * 
+ * @pre Les trois pointeurs sont non nuls.
+ * @pre L'image de sortie doit être allouée et avoir la même taille que l'image d'entrée.
+ */
+void dilatation(t_Image * Image, t_Image * Image_D, short COULEUR){
+    assert(Image != nullptr);
+    assert(Image->h == Image_D->h && Image->w == Image_D->w);
+
+    
+    
+    for (int i = 1; i < (*Image).h ;i++){
+        for(int j = 0; j<(*Image).w ;j++){
+            if(Image->im[i][j] == COULEUR){
+
+                Image_D->im[i-1][j-1] = COULEUR;
+                Image_D->im[i-1][j]   = COULEUR;
+                Image_D->im[i-1][j+1] = COULEUR;
+
+                Image_D->im[i][j-1]   = COULEUR;
+                Image_D->im[i][j]     = COULEUR;
+                Image_D->im[i][j+1]   = COULEUR;
+
+                Image_D->im[i+1][j-1] = COULEUR;
+                Image_D->im[i+1][j]   = COULEUR;
+                Image_D->im[i+1][j+1] = COULEUR;
+
+            }
+
+
         }
     }
+
 }
