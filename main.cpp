@@ -85,7 +85,6 @@ void test_erosion(){
 
     savePgm(pathMod+"visageErosion2"+size2+endFile,ptr_imgMod);
 
-
     //Libération de la mémoire :
     delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
 }

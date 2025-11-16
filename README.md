@@ -62,7 +62,41 @@ P2
 50 0
 ```
 
-En mémoire (structure t_Image) :
+Zoom (vue agrandie, représentation pixel par pixel) :
+
+<table>
+    <tr>
+        <td style="padding:6px">
+            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;
+                                    background:rgb(255,255,255);color:#000;border:1px solid #999;">
+                (x=0, y=0) : 255
+            </div>
+        </td>
+        <td style="padding:6px">
+            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;
+                                    background:rgb(100,100,100);color:#fff;border:1px solid #999;">
+                (x=1, y=0) : 100
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:6px">
+            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;
+                                    background:rgb(50,50,50);color:#fff;border:1px solid #999;">
+                (x=0, y=1) : 50
+            </div>
+        </td>
+        <td style="padding:6px">
+            <div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;
+                                    background:rgb(0,0,0);color:#fff;border:1px solid #999;">
+                (x=1, y=1) : 0
+            </div>
+        </td>
+    </tr>
+</table>
+
+
+En mémoire (structure t_Image) serait représentée en mémoire comme cela :
 
 ```cpp
 t_Image imgBsc;
@@ -74,10 +108,6 @@ imgBsc.im[0][1] = 50; // pixel (x=0,y=1)
 imgBsc.im[1][1] = 0;  // pixel (x=1,y=1)
 ```
 
-serait représentée en mémoire comme suit :
-
-
-
 ## Q1) Fonctions seuillage et différence :
 
 ### Fonction  de seuillage `nom`
@@ -85,39 +115,33 @@ serait représentée en mémoire comme suit :
 #### Algorithmes
 
 
+<img src="./assets/UML_seuil.png" alt="Diagramme UML de differencePgm" width="300" />
+
+
+#### Description du principe :
+ce que fait le seuillage ...
+
+
 #### Prototypes
 ```cpp
-t_EntierLong convertInt_Entierlong(long long intToConvert);
+void seuil(t_Image * Image,unsigned int sueil);
 ```
 
-#### Description du principe
-Convertie un entier  ``` t_EntierLong```. Utilise `to_string()` pour obtenir la représentation décimale, puis stocke chaque chiffre dans l'ordre inverse.
-
-#### Jeux d'essais simples avec Unity
+#### Jeux d'essais 
 
 ```cpp
-void test_convertInt_Entierlong(void) {
-    // Test: conversion de 12345
-    long input1 = 12345;
-    int expected[5] = {5,4,3,2,1};
-    t_EntierLong result = convertInt_Entierlong(input1);
-    TEST_ASSERT_EQUAL(0, result.negatif); //vérification du signe
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected, result.chiffres, 5); //Vérification des chiffres
-
-    // Test: conversion de -12345 → même chiffres, signe négatif
-    long input2 = -12345;
-    t_EntierLong result_neg = convertInt_Entierlong(input2);
-    TEST_ASSERT_EQUAL(1, result_neg.negatif);
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected, result_neg.chiffres, 5);
-}//... 
+void test_seuil(){
+    //mettre le code du test ici
+}
 ```
----
+![test_seuil](assets/seuil.png)
 
+---
 ### Fonction  de différence `differencePgm()`
 
 #### Algorithmes
 
-<img src="./assets/UML_difference.png" alt="Diagramme UML de differencePgm" width="200" />
+<img src="./assets/UML_difference.png" alt="Diagramme UML de differencePgm" width="300" />
 
 
 #### Description du principe :
@@ -132,137 +156,211 @@ void differencePgm(t_Image * imgMod, t_Image *  img1, t_Image *  img2);
 #### Jeux d'essais 
 
 ```cpp
-void test_convertInt_Entierlong(void) {
-    // Test: conversion de 12345
-    long input1 = 12345;
-    int expected[5] = {5,4,3,2,1};
-    t_EntierLong result = convertInt_Entierlong(input1);
-    TEST_ASSERT_EQUAL(0, result.negatif); //vérification du signe
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected, result.chiffres, 5); //Vérification des chiffres
+void test_difference(){
+    //Allocation dynamique des images
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_img2 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    bool success = false; //Indicateur de succès du chargement
 
-    // Test: conversion de -12345 → même chiffres, signe négatif
-    long input2 = -12345;
-    t_EntierLong result_neg = convertInt_Entierlong(input2);
-    TEST_ASSERT_EQUAL(1, result_neg.negatif);
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected, result_neg.chiffres, 5);
-}//... 
+    //Chargement des images :
+    loadPgm(pathBasic+"lena"+size1+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"plane"+size1+endFile,ptr_img2,success);
+    loadPgm(pathBasic+"noir"+size1+endFile,ptr_imgMod,success);
+
+    //Calcul de la différence :
+    differencePgm(ptr_imgMod,ptr_img1,ptr_img2);
+
+    //Sauvegarde de l'image modifiée :
+    savePgm(pathMod+"lenaplane"+size1+endFile,ptr_imgMod);
+
+    //Libération de la mémoire :
+    delete ptr_img1;
+    delete ptr_img2;
+    delete ptr_imgMod;
+}
 ```
----
-### - Fonction `EntierLongIsEqual`
+![test_difference](assets/lenaplage.png)
 
-#### Spécification
-```cpp
-bool EntierLongIsEqual(t_EntierLong a, t_EntierLong b);
-```
-
-#### Description du principe
-La fonction vérifie l’égalité de deux entiers longs en commençant par comparer leur signe, puis en comparant chaque chiffre du tableau. Une optimisation a été rajoutée, on interrompt la comparaison dès qu’une différence est détectée.
-
-#### Jeux d'essais avec Unity
-
-```cpp
-void test_EntierLongIsEqual(void) {
-    // EntierLong de tests :
-    t_EntierLong a = {0, {123}};
-    t_EntierLong b = {1, {456}};
-
-    //Test 1 : égalité (mêmes chiffres, même signe)
-    TEST_ASSERT_TRUE(EntierLongIsEqual(a, c));
-
-    //Test 2 : inégalité signe et chiffres différents)
-    TEST_ASSERT_FALSE(EntierLongIsEqual(a, b));
-}//...
-```
 ---
 
-### - Fonction `EntierLongAbsComparison`
 
-#### Spécification
-```cpp
-bool EntierLongAbsComparison(t_EntierLong n1, t_EntierLong n2);
-```
+## Q2) Choix de la structure de l'élément structurant:
 
-#### Description du principe
-Comparaison des valeurs absolues en parcourant les chiffres de gauche à droite (poids fort vers poids faible) pour déterminer l'ordre de grandeur. (n1 <= n2)
+### Choix de représentation :
 
-#### Jeux d'essais avec Unity
+Pour représenter l’élément structurant, nous nous sommes appuyés sur la structure `t_Image`. <br> Toutefois, comme notre projet ne manipule que des images binaire noir et blanc, nous avons adapté cette structure : chaque pixel de l’élément structurant est désormais représenté par un booléen (true ou false).<br> Cette simplification permet de réduire la taille de stockage de la structure.
 
 ```cpp
-void test_abs_comparison(void) {
-    // Test 1: Comparaison avec nombres identiques (5 >= 5)
-    t_EntierLong same_a = {0, {5}};
-    t_EntierLong same_b = {1, {5}}; // Même valeur absolue, signe différent
-    TEST_ASSERT_TRUE(EntierLongAbsComparison(same_a, same_b));
-    TEST_ASSERT_TRUE(EntierLongAbsComparison(same_b, same_a));
+const int tailleMaxMatrice = 16; //taille maximale de l'élément structurant
 
-    // Test 2: Comparaison nombres avec plusieurs chiffres
-    t_EntierLong multi = {0, {0, 0, 1}}; // 100 (selon ton format)
-    t_EntierLong single = {0, {9}};      // 9
-    TEST_ASSERT_FALSE(EntierLongAbsComparison(multi, single));
-    TEST_ASSERT_TRUE(EntierLongAbsComparison(single, multi));
-}//...
+typedef  bool t_MatStructurante[tailleMaxMatrice][tailleMaxMatrice]; 
+
+typedef struct{ //élèment structurant
+    u_int16_t size; //largeur de l'élèment structurant
+	t_MatStructurante em; //tableau des niveaux de gris de le l'élèment structurant
+}t_structurant; 
 ```
+## Q3) Fonctions dilatation et érosion :
+
+
+### Fonction  `erosionPgm()`
+
+#### Algorithmes
+
+<img src="./assets/UML_erosion.png" alt="Diagramme UML de l'érosion" width="300" />
+
+
+#### Description du principe :
+L’érosion est une opération fondamentale de traitement d’image binaire utilisée pour réduire les objets blancs (ou noirs) et éliminer les petits détails dans une image. Elle s’appuie sur un élément structurant `t_structurant` qui définit la forme et la taille de l’érosion.
+
+
+#### Prototypes
+```cpp
+void erosionPgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond);
+```
+
+#### Jeux d'essais 
+
+```cpp
+void test_erosion(){
+    //Allocation dynamique des images :
+    t_Image* ptr_img1 = new t_Image;
+    t_Image* ptr_imgMod = new t_Image;
+    //Allocation dynamique de l'élément structurant :
+    t_structurant* ptr_elementStructurant = new t_structurant;
+
+    bool success = false; //Indicateur de succès du chargement
+
+    //Initialisation de l'élément structurant (matrice 3x3 pleine) :
+    ptr_elementStructurant->size = 3;
+    for (unsigned int i = 0; i < 3; i++){
+        for (unsigned int j = 0; j < 3; j++){
+            ptr_elementStructurant->em[i][j] = 1;
+        }
+    }
+
+    //Image 1 avec fond blanc
+    //Chargement des images :
+    loadPgm(pathBasic+"visageBinaire"+size2+endFile,ptr_img1,success);
+    loadPgm(pathBasic+"blanc"+size2+endFile,ptr_imgMod,success);
+
+    //Erosion :
+    erosionPgm(ptr_imgMod,ptr_img1,ptr_elementStructurant,FOND_BLANC);
+
+    //Sauvegarde de l'image modifiée :
+    savePgm(pathMod+"visageErosion"+size2+endFile,ptr_imgMod);
+
+    //Image 2 avec fond noir
+    /**Voir Code Main pour plus de détails**/
+   
+    //Libération de la mémoire :
+    delete ptr_img1; delete ptr_imgMod; delete ptr_elementStructurant;
+}
+```
+![test_seuil](assets/erosion.png)
+
 ---
 
-### - Fonction `initializeEntierLong`
 
-#### Spécification
+### Fonction  `dilatation()`
+
+#### Algorithmes
+
+<img src="./assets/UML_erosion.png" alt="Diagramme UML de dilatation" width="300" />
+
+
+#### Description du principe :
+ce que fait le dilatation ...
+
+
+#### Prototypes
 ```cpp
-void initializeEntierLong(t_EntierLong &n);
+void dilatation(t_Image * Image,unsigned int sueil);
 ```
 
-
-#### Description du principe
-Initialisation par défaut d'une structure `t_EntierLong`. Met tous les éléments du tableau `chiffres[]` à 0
-
-#### Jeux d'essais avec Unity
+#### Jeux d'essais 
 
 ```cpp
-void test_initializeEntierLong(void) {
-    //Variables :
-    t_EntierLong n;
-    initializeEntierLong(n);
-    int expected[18] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; 
-
-    // Vérifie que toutes les valeurs du tableau sont bien initialisées à 0
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected, n.chiffres, MAXCHIFFRES);
-}//...
+void test_dilatation(){
+    //Ce que fait le test ici
+}
 ```
+![test_seuil](assets/dilatation.png)
 
-## Fonctions des Opérations Arithmétiques
-
-### - Fonction `addSameSign`
-
-#### Spécification
-```cpp
-t_EntierLong addSameSign(t_EntierLong n1, t_EntierLong n2);
-```
-
-#### Description du principe
-addition de deux entiers longs ayant le même signe. Chaque chiffre est additionné avec la retenue de l’étape précédente. L'algorithme parcourt le tableau `chiffres[]` depuis l'index 0 (unités) jusqu'à MAXCHIFFRES-1, en propageant les retenues.
-
-#### Jeux d'essais avec Unity
-
-
-```cpp
-void test_addSameSign(void) {
-    // Test: 124 + 456 = 580 (positif)
-    t_EntierLong a = convertInt_Entierlong(124);
-    t_EntierLong b = convertInt_Entierlong(456);
-    t_EntierLong result = addSameSign(a, b);
-
-    int expected_pos[] = {0, 8, 5}; // 124 + 456 = 580 
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected_pos, result.chiffres, 3);
-    TEST_ASSERT_EQUAL(false, result.negatif); // positif
-
-    // Test: -124 + -456 = -580 (négatif)
-    t_EntierLong c = convertInt_Entierlong(-124);
-    t_EntierLong d = convertInt_Entierlong(-456);
-    t_EntierLong result_neg = addSameSign(c, d);
-
-    int expected_neg[] = {0, 8, 5}; // même chiffres que pour le positif
-    TEST_ASSERT_EQUAL_INT_ARRAY(expected_neg, result_neg.chiffres, 3);
-    TEST_ASSERT_EQUAL(true, result_neg.negatif); // négatif
-}//...
-```
 ---
+
+
+
+
+## Q4) Fonctions d'ouverture et de fermeture :
+
+
+### Fonction  `ouverturePgm()`
+
+#### Algorithmes
+
+<img src="./assets/UML_ouverture.png" alt="Diagramme UML de l'érosion" width="250" />
+
+
+#### Description du principe :
+L’ouverture est une opération morphologique qui combine une érosion suivie d’une dilatation. Elle est utilisée pour supprimer les petites structures ou bruits dans une image tout en préservant la forme générale des objets plus grands.
+
+
+#### Prototypes
+```cpp
+void ouverturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond);
+```
+
+#### Jeux d'essais 
+
+```cpp
+void test_erosion(){
+    //mettre le code du test ici
+}
+```
+![test_seuil](assets/erosion.png)
+
+---
+
+
+### Fonction  `fermeturePgm()`
+
+#### Algorithmes
+
+<img src="./assets/UML_fermeture.png" alt="Diagramme UML de dilatation" width="250" />
+
+
+#### Description du principe :
+La fermeture est l’opération inverse de l’ouverture, qui combine une dilatation suivie d’une érosion. Elle est utilisée pour combler les petites trous ou fissures dans les objets tout en conservant leur forme globale.
+
+
+#### Prototypes
+```cpp
+void fermeturePgm(t_Image * imgMod, t_Image *  img, t_structurant* elStructurant, bool couleurFond);
+```
+
+#### Jeux d'essais 
+
+```cpp
+void test_fermeture(){
+    //Ce que fait le test ici
+}
+```
+![test_seuil](assets/dilatation.png)
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
